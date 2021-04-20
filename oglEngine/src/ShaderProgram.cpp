@@ -1,10 +1,10 @@
+#include <glm/gtc/type_ptr.hpp>
+
 #include <fstream>
 #include <sstream>
 #include <iostream>
 
 #include "ShaderProgram.h"
-
-using namespace std;
 
 ShaderProgram::ShaderProgram() {
 	Id = glCreateProgram();
@@ -42,6 +42,10 @@ void ShaderProgram::SetFloat(const string& name, float value) {
 	glUniform1f(glGetUniformLocation(Id, name.c_str()), value);
 }
 
-void ShaderProgram::SetMat4(const string& name, float* value) {
-	glUniformMatrix4fv(glGetUniformLocation(Id, name.c_str()), 1, GL_FALSE, value);
+void ShaderProgram::SetVec3(const string& name, vec3 value) {
+	glUniform3fv(glGetUniformLocation(Id, name.c_str()), 1, value_ptr(value));
+}
+
+void ShaderProgram::SetMat4(const string& name, mat4 value) {
+	glUniformMatrix4fv(glGetUniformLocation(Id, name.c_str()), 1, GL_FALSE, value_ptr(value));
 }

@@ -27,6 +27,7 @@ private:
 	FrameTimes frameTimes;
 
 	ShaderProgram* mainShaderProgram;
+	ShaderProgram* lightShaderProgram;
 	Camera* mainCamera;
 	Model* mainModel;
 

@@ -2,10 +2,10 @@
 
 #include <glm/glm.hpp>
 
-using namespace glm;
-
 struct Vertex {
-	vec3 Position;
-	vec3 Normal;
-	vec2 TexCoords;
+	glm::vec3 Position;
+	glm::vec3 Normal;
+	glm::vec2 TextureCoords;
+	glm::vec3 Tangent;
+	glm::vec3 Bitangent;
 };

@@ -1,7 +1,6 @@
 #include <glad/glad.h>
 #include <glm\ext\matrix_transform.hpp>
 #include <glm\ext\matrix_clip_space.hpp>
-#include <glm\gtc\type_ptr.hpp>
 
 #include <iostream>
 
@@ -61,15 +60,21 @@ void Engine::Init() {
 
 	glViewport(0, 0, windowWidth, windowHeight);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
-	Shader mainVertexShader = Shader(GL_VERTEX_SHADER, "main.vert");
-	Shader mainFragmentShader = Shader(GL_FRAGMENT_SHADER, "main.frag");
-
-	// TODO using new means manual memory management, so find another way
+	Shader mainVertexShader = Shader(GL_VERTEX_SHADER, "main.v.glsl");
+	Shader mainFragmentShader = Shader(GL_FRAGMENT_SHADER, "main.f.glsl");
 	mainShaderProgram = new ShaderProgram();
 	mainShaderProgram->Attach(mainVertexShader);
 	mainShaderProgram->Attach(mainFragmentShader);
 	mainShaderProgram->Link();
+
+	/*Shader lightVertexShader = Shader(GL_VERTEX_SHADER, "light.v.glsl");
+	Shader lightFragmentShader = Shader(GL_FRAGMENT_SHADER, "light.f.glsl");
+	lightShaderProgram = new ShaderProgram();
+	lightShaderProgram->Attach(lightVertexShader);
+	lightShaderProgram->Attach(lightFragmentShader);
+	lightShaderProgram->Link();*/
 
 	mainCamera = new Camera();
 
@@ -77,9 +82,9 @@ void Engine::Init() {
 }
 
 void Engine::Loop() {
-	mat4 model = mat4(1.0f);
-	mat4 view = mat4(1.0f);
-	mat4 projection = projection = perspective(radians(45.f), (float)windowWidth / (float)windowHeight, 0.1f, 100.f);;
+	mat4 model = mat4(1.f);
+	mat4 view = mat4(1.f);
+	mat4 projection = perspective(radians(45.f), (float)windowWidth / (float)windowHeight, 0.1f, 100.f);;
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
@@ -93,13 +98,25 @@ void Engine::Loop() {
 		//model = rotate(model, radians(-55.0f), vec3(1.0f, 0.0f, 0.0f));
 		view = mainCamera->GetViewMatrix();
 
-		glClearColor(0, 0, 0, 1);
+		glClearColor(0.f, 0.f, 0.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		mainShaderProgram->Use();
-		mainShaderProgram->SetMat4("model", value_ptr(model));
-		mainShaderProgram->SetMat4("view", value_ptr(view));
-		mainShaderProgram->SetMat4("projection", value_ptr(projection));
+
+		mainShaderProgram->SetMat4("modelMatrix", model);
+		mainShaderProgram->SetMat4("viewMatrix", view);
+		mainShaderProgram->SetMat4("projectionMatrix", projection);
+
+		mainShaderProgram->SetVec3("viewPosition", mainCamera->Position);
+		vec3 lightDir = vec3(
+			cos(radians((float)SDL_GetTicks() / 10.f)),
+			sin(radians((float)SDL_GetTicks() / 10.f)),
+			-1.f
+		);
+		mainShaderProgram->SetVec3("dirLight.direction", lightDir);
+		mainShaderProgram->SetVec3("dirLight.ambient", vec3(0.5f, 0.5f, 0.5f));
+		mainShaderProgram->SetVec3("dirLight.diffuse", vec3(1.f, 1.f, 1.f));
+		mainShaderProgram->SetVec3("dirLight.specular", vec3(1.f, 1.f, 1.f));
 
 		mainModel->Draw(*mainShaderProgram);
 
